@@ -16,7 +16,7 @@ PURGE RECYCLEBIN;
 CREATE TABLE branch(
 	branch_name VARCHAR(25) PRIMARY KEY,
 	branch_city VARCHAR(25),
-	assets VARCHAR(25)
+	assets INTEGER
 );
 
 CREATE TABLE customer(
@@ -33,10 +33,11 @@ CREATE TABLE loan(
 );
 
 CREATE TABLE borrower(
-	customer_name VARCHAR(25) PRIMARY KEY,
+	customer_name VARCHAR(25),
 	loan_number INTEGER,
 	FOREIGN KEY (customer_name) REFERENCES customer(customer_name),
-	FOREIGN KEY (loan_number) REFERENCES loan(loan_number)
+	FOREIGN KEY (loan_number) REFERENCES loan(loan_number),
+	PRIMARY KEY (customer_name, loan_number)
 );
 
 CREATE TABLE account(
