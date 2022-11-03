@@ -31,7 +31,9 @@ void loadOpCode(){
 // Compare op-codes ignoring case and whitespace. 1=same, 0=diff
 char opMatch(char *c1, char *c2){
     char a, b;
-    for(int i=0, j=0; c1[i] != 0 && c2[j] != 0; i++, j++){
+    int i=0, j=0;
+    for(; c1[i] != 0 && c2[j] != 0; i++, j++){
+        // Skip leading whitespace
         while(c1[i] == 9 || c1[i] == 32) i++;
         while(c2[j] == 9 || c2[j] == 32) j++;
         a = c1[i]; b = c2[j];
@@ -43,7 +45,8 @@ char opMatch(char *c1, char *c2){
         if(a != b)
             return 0;
     }
-    return 1;
+    if(c1[i] == c2[j]) return 1;
+    else return 0;
 }
 
 int isValidOp(char *op){
@@ -58,6 +61,9 @@ int isValidOp(char *op){
 char paramCount(char *line, char *lab, char *op, char *opr){
     int i=0, j=0, n=0;
     while((line[i] == 32 || line[i] == 9) && line[i] != 0) i++;
+    // If comment or blank, exit
+    if(line[i] == 0 || line[i] == 10 || line[i] == '.')
+        return 0;
     while(line[i] != 32 && line[i] != 9 && line[i] != 10 && line[i] != 0)
         lab[j++] = line[i++];
     lab[j] = 0;
@@ -99,7 +105,7 @@ int str2int(char *str){
 void main(int argc, char **argv){
     int locctr = 0, sym_i = 0;
     optab = malloc(sizeof(optab)*OPLEN);
-    symtab = malloc(sizeof(optab)*SYMLEN);
+    symtab = malloc(sizeof(symtab)*SYMLEN);
     // Load OPCodes from file
     loadOpCode();
     char *line = malloc(BUF_LEN);
@@ -123,9 +129,7 @@ void main(int argc, char **argv){
             line_n++;
             // 3 param line
             if(sym_n == 3){
-                printf("Line %d has %d symbols [%s] [%s] [%s]\n", line_n, sym_n, label, operation, operator);
                 // Write label into symtab file
-                struct Op *sym = malloc(sizeof(struct Op));
                 for(int k=0; k<sym_i; k++){
                     if(!strcmp(symtab[k]->name, label)){
                         printf("%d | %s\n[ERROR] At line %d: Duplicate label '%s'\n", line_n, line, line_n, label);
@@ -133,17 +137,18 @@ void main(int argc, char **argv){
                     }
                 }
                 if(strcmp(label, "") != 0){
-                    printf("New label %s at %d\n", label, locctr);         
+                    struct Op *sym = malloc(sizeof(struct Op));
                     strcpy(sym->name, label);
                     sym->code = locctr;
                     symtab[sym_i++] = sym;
                 }
             }
-            //printf("Line %d has %d symbols [%s] [%s] [%s]\n", line_n, sym_n, label, operation, operator);
+
+            // printf("--> %d | %s op{%s}\n", line_n, line, operation);
 
             // Translate assembler directives
             if(opMatch(operation, "END"))
-                break;
+                continue;
             else if(opMatch(operation, "START"))
                 locctr = str2int(operator);
             else if(opMatch(operation, "RESW"))
@@ -158,8 +163,9 @@ void main(int argc, char **argv){
             else{
                 int opcode = isValidOp(operation);
                 // Write intermediate file
+                // printf("%d | %s %s %s\n", line_n, label, operation, operator); // DEBUG
                 if(opcode > -1){
-                    fprintf(objc, "%x\t%s\n", opcode, operator);
+                    fprintf(objc, "%d\t%s\t%s\n", locctr, operation, operator);
                     locctr += 3;
                 }
                 else
@@ -167,8 +173,8 @@ void main(int argc, char **argv){
             }
         }
         // Write symtab to file
-        for(int i=0; i<sym_n; i++)
-            fprintf(symtab_f, "%s %d\n", label, locctr);
+        for(int i=0; i<sym_i; i++)
+            fprintf(symtab_f, "%s %d\n", symtab[i]->name, symtab[i]->code);
     }
     else
         printf("No input files!!\nRun as %s <asm code> <obj dest> <symtab dest>\n", argv[0]);
