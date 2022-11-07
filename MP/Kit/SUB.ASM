@@ -1,0 +1,10 @@
+; Author: Gokul Raj, 235, R5A
+NAME "SUBTRACTION"
+        MOV CX, 0000H
+        MOV AX, [2000H]
+        SUB AX, [2002H]
+        JNC SKIP
+        INC CX
+SKIP:   MOV [2004H], CX
+        MOV [2006H], AX
+        HLT

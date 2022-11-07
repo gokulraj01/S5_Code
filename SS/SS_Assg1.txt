@@ -1,0 +1,152 @@
+1. Program to set ALPHA=GAMMA*BETA-9 using Register Operation
+    Q1      START   1000
+    ALPHA	RESW    1
+    BETA	REWS    1
+    GAMMA   RESW    1
+    NINE	WORD    #9
+            LDA     GAMMA
+            MUL     BETA
+            SUB		NINE
+            STA		ALPHA
+            END		1000
+            
+
+2. SIC/XE program to copy a character string to another string
+	Q2		START	1000
+	STR1	BYTE	C'HELLO WORLD'
+	LEN		WORD	11
+	STR2	RESB	11
+			CLEAR	X
+	ITER	LDCH	STR1, X
+			STCH	STR2, X
+			TIX		LEN
+			JLT		ITER
+			END		1000
+	
+3. SIC/XE Program to write a subroutine to read a record into a buffer
+	Q3		START	1000
+	RECSZ	WORD	16
+	DEVID	RESW	1234
+	RECORD	RESW	16
+			JSUB	RDREC
+			END 	1000
+	
+	RDREC	CLEAR	X
+	WAITD	TD		DEVID
+			JEQ		WAITD
+			RD		DEVID
+			STCH	RECORD, X
+			TIX		RECSZ
+			JLT		WAITD
+			RSUB
+
+4. SIC/XE Program to find the minimum element in the array and store result in MIN
+	Q4		START	1000
+	ARRLEN	RESW	1
+	ARRAY	RESW	64
+	MIN		RESW	1
+			+LDA	#FFFFFF
+			STA		MIN
+			CLEAR	X
+	LOOP	+LDA	ARRAY, X
+			COMP	MIN
+			JLT		SKIP
+			STA		MIN
+	SKIP	TIX		ARRLEN
+			JLT		LOOP
+			END		1000
+			
+5. SIC/XE Program to multiply two arrays
+	Q5		START	1000
+	ARR1	RESW	16
+	ARR2	RESW	16
+	RESARR	RESW	16
+	ARRLEN	WORD	16
+			CLEAR	X
+	LOOP	+LDA	ARR1, X
+			+MUL	ARR2, X
+			+STA	RESARR, X
+			TIX		ARRLEN
+			JLT		LOOP
+			END		1000		
+
+6. Suppose that ALPHA is an array of 100 words. Write a sequence of instruction for SIC/XE to arrange the 100 words in ascending order and store result in an array BETA of 100 elements.
+	Q6      START   1000
+	ALPHA   RESW    100
+	BETA    RESW    100
+	LEN     WORD    100
+	MINVAL  RESW    1
+	MINPOS  RESW    1
+			CLEAR   S
+	ITER    CLEAR   X
+			+LDA    #FFFFFF
+			STA     MINVAL
+	MINLOOP LDA     ALPHA, X
+			COMP    MINVAL
+			JLT     SKIP
+			STA     MINVAL
+			STX     MINPOS
+	SKIP    TIX     LEN
+			JLT     MINLOOP
+			LDA     MINVAL
+			+RMO    S, X
+			STA     BETA, X
+			+LDA    #FFFFFF
+			LDX     MINPOS
+			STA     ALPHA, X
+			+RMO    S, A
+			+ADD    #1
+			+RMO    A, S
+			COMP    LEN
+			JLT     ITER
+			END     1000
+			
+7. Program to clear 20 byte string to empty
+	Q7		START	1000
+	STR		RESB	20
+	BLANK	BYTE	0
+	LEN		WORD	20
+			CLEAR 	X
+			LDCH	BLANK
+	LOOP	STCH	STR, X
+			TIX		LEN
+			JLT		LOOP
+			END 	1000
+
+8. Write sequence of instructions for SIC/XE to divide BETA by GAMMA setting ALPHA to the integer portion of quotient & DELTA to the remainder
+	Q8		START	1000
+	ALPHA	RESW	1
+	BETA	RESW	1
+	GAMMA	RESW	1
+	DELTA	RESW	1
+			LDA		BETA
+			DIV		GAMMA
+			STA		ALPHA
+			MUL		GAMMA
+			SUB		BETA
+			STA		DELTA
+			END		1000
+
+9. Write SIC instructions to swap the values of ALPHA & BETA.
+	Q9		START	1000
+	ALPHA	RESW	1
+	BETA	RESW	1
+			LDA		ALPHA
+			LDB		BETA
+			STA		BETA
+			STB		ALPHA
+			END		1000
+
+10. Write a sequence of instructions in SIC/XE to add 2 arrays of 100 integers.
+	Q10		START	1000
+	ARR1	RESW	100
+	ARR2	RESW	100
+	RESARR	RESW	100
+	ARRLEN	WORD	100
+			CLEAR	X
+	LOOP	+LDA	ARR1, X
+			+ADD	ARR2, X
+			+STA	RESARR, X
+			TIX		ARRLEN
+			JLT		LOOP
+			END		1000
