@@ -177,5 +177,5 @@ void main(int argc, char **argv){
             fprintf(symtab_f, "%s %d\n", symtab[i]->name, symtab[i]->code);
     }
     else
-        printf("No input files!!\nRun as %s <asm code> <obj dest> <symtab dest>\n", argv[0]);
+        printf("No input files!!\nRun as %s <asm code> <intermediate dest> <symtab dest>\n", argv[0]);
 }
