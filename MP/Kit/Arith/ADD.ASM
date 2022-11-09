@@ -1,8 +1,7 @@
-; Author: Gokul Raj, 235, R5A
-NAME "SUBTRACTION"
+NAME "ADDITION"
         MOV CX, 0000H
         MOV AX, [2000H]
-        SUB AX, [2002H]
+        ADD AX, [2002H]
         JNC SKIP
         INC CX
 SKIP:   MOV [2004H], CX

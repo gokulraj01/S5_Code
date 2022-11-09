@@ -1,0 +1,13 @@
+1000            MOV AX, [3000H]
+1004            MOV BP, 2002H
+1008            MOV CX, [2000H]
+100C           MOV SI, 0000H      
+1010    ITER:   CMP AX, [SI+BP]
+1012            JE FOUND
+1014            ADD SI, 2
+1018           LOOP ITER     
+101A            MOV WORD [3002H], 0000H
+101F            HLT  
+1020    FOUND:  ADD BP, SI
+1022            MOV [3002H], BP
+1026            HLT

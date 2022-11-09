@@ -1,0 +1,13 @@
+NAME "DIVISION"  
+ORG 1000H
+
+MOV WORD PTR [2000H], 0A850H
+MOV WORD PTR [2002H], 70F6H
+MOV WORD PTR [2004H], 0ABCDH
+
+MOV DX, [2000H]
+MOV AX, [2002H]
+DIV WORD PTR [2004H]
+MOV [2010H], AX      ; store quotient
+MOV [2012H], DX      ; store remainder
+HLT                  

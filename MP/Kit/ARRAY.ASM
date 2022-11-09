@@ -1,4 +1,3 @@
-; Author: Gokul Raj, 235, R5A
 NAME "ARRAY-ADDITION"
 ; initialize count and base index
         MOV CX, [2000H]

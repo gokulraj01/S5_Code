@@ -1,4 +1,3 @@
-; Author: Gokul Raj, 235, R5A
 NAME "LINEAR-SEARCH"
         MOV AX, [3000H]
         MOV BP, 2002H
