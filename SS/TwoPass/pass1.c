@@ -3,7 +3,7 @@
 #include <string.h>
 
 #define OPTAB "optab.txt"
-#define OPLEN 6
+#define OPLEN 32
 #define SYMLEN 256
 #define BUF_LEN 1024
 #define WORD_SIZE 3
@@ -102,7 +102,7 @@ int str2int(char *str){
     return op;
 }
 
-void main(int argc, char **argv){
+int main(int argc, char **argv){
     int locctr = 0, sym_i = 0;
     optab = malloc(sizeof(optab)*OPLEN);
     symtab = malloc(sizeof(symtab)*SYMLEN);
@@ -122,18 +122,18 @@ void main(int argc, char **argv){
         while(!feof(prog)){
             fgets(line, BUF_LEN, prog);
             sym_n = paramCount(line, label, operation, operator);
+            line_n++;
             // Skip if comment line or blank line
             if(sym_n == 0)
                 continue;
             // Is code line. Start parsing.
-            line_n++;
             // 3 param line
             if(sym_n == 3){
                 // Write label into symtab file
                 for(int k=0; k<sym_i; k++){
                     if(!strcmp(symtab[k]->name, label)){
                         printf("%d | %s\n[ERROR] At line %d: Duplicate label '%s'\n", line_n, line, line_n, label);
-                        return;
+                        return 1;
                     }
                 }
                 if(strcmp(label, "") != 0){
@@ -144,7 +144,7 @@ void main(int argc, char **argv){
                 }
             }
 
-            // printf("--> %d | %s op{%s}\n", line_n, line, operation);
+            // printf("--> %d | %s op{%s}\n", line_n, line, operation); // Debug
 
             // Translate assembler directives
             if(opMatch(operation, "END"))
@@ -168,8 +168,10 @@ void main(int argc, char **argv){
                     fprintf(objc, "%d\t%s\t%s\n", locctr, operation, operator);
                     locctr += 3;
                 }
-                else
+                else{
                     printf("%d | %s\n[ERROR] At line %d: Unknown mnemonic '%s'\n", line_n, line, line_n, operation);
+                    exit(1);
+                }
             }
         }
         // Write symtab to file
@@ -178,4 +180,6 @@ void main(int argc, char **argv){
     }
     else
         printf("No input files!!\nRun as %s <asm code> <intermediate dest> <symtab dest>\n", argv[0]);
+    printf("Pass 1 done!!\n");
+    return 0;
 }

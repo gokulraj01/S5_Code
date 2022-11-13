@@ -7,7 +7,7 @@ struct Op{
     int code;
 };
 
-#define OPTAB "optab.txt"
+#define OPTAB "OPTAB"
 #define OPLEN 6
 
 struct Op **optab;
