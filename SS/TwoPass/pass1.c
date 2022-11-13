@@ -102,6 +102,17 @@ int str2int(char *str){
     return op;
 }
 
+int str2hex(char *str){
+    int op = 0;
+    for(int i=0; str[i]!=0; i++){
+        if(str[i] >= '0' && str[i] <= '9')
+            op = op*16 + str[i] - '0';
+        else if(str[i] >= 'A' && str[i] <= 'F')
+            op = op*16 + str[i] - 'A' + 10;
+    }
+    return op;
+}
+
 int oprSizeEval(char *opr){
     int i = 0;
     // For plain numbers
@@ -152,10 +163,15 @@ int main(int argc, char **argv){
     char *operation = malloc(BUF_LEN/2);
     char *operator = malloc(BUF_LEN/2);
     int sym_n, line_n = 0;
+
+    // Store program name and length
+    char *progname = malloc(BUF_LEN/2);
+    int startAddr = 0;
+
     // Read from terminal asm and destination filenames
     if(argc >= 4){
         FILE *prog = fopen(argv[1], "r");
-        FILE *objc = fopen(argv[2], "w");
+        FILE *interFile = fopen(argv[2], "w");
         FILE *symtab_f = fopen(argv[3], "w");
         // Read each lines of program
         while(!feof(prog)){
@@ -176,35 +192,44 @@ int main(int argc, char **argv){
                     }
                 }
                 if(strcmp(label, "") != 0){
-                    struct Op *sym = malloc(sizeof(struct Op));
-                    strcpy(sym->name, label);
-                    sym->code = locctr;
-                    symtab[sym_i++] = sym;
+                    if(opMatch(operation, "START"))
+                        strcpy(progname, label);
+                    else{
+                        struct Op *sym = malloc(sizeof(struct Op));
+                        strcpy(sym->name, label);
+                        sym->code = locctr;
+                        symtab[sym_i++] = sym;
+                    }
                 }
             }
 
-            printf("--> %d | %s op{%s}\n", line_n, line, operation); // Debug
+            // printf("--> %d | %s op{%s}\n", line_n, line, operation); // Debug
 
             // Translate assembler directives
             if(opMatch(operation, "END"))
                 continue;
-            else if(opMatch(operation, "START"))
-                locctr = str2int(operator);
+            else if(opMatch(operation, "START")){
+                locctr = str2hex(operator);
+                startAddr = locctr;
+            }
             else if(opMatch(operation, "RESW"))
                 locctr += str2int(operator)*WORD_SIZE;
             else if(opMatch(operation, "RESB"))
                 locctr += str2int(operator);
             else if(opMatch(operation, "WORD")){
-                if(oprSizeEval(operator) > 0)
+                if(oprSizeEval(operator) > 0){
+                    fprintf(interFile, "%d\t%s\t%s\n", locctr, operation, operator);
                     locctr += WORD_SIZE;
+                }
                 else
                     printf("%d | %s\n[ERROR] At line %d: Invalid Constant -> %s\n", line_n, line, line_n, operator);
             }
             else if(opMatch(operation, "BYTE")){
                 int constSize = oprSizeEval(operator);
-                printf("%d + %d\n", locctr, constSize);
-                if(constSize > 0)
+                if(constSize > 0){
+                    fprintf(interFile, "%d\t%s\t%s\n", locctr, operation, operator);
                     locctr += constSize;
+                }
                 else
                     printf("%d | %s\n[ERROR] At line %d: Invalid Constant -> %s\n", line_n, line, line_n, operator);
             }
@@ -213,9 +238,8 @@ int main(int argc, char **argv){
             else{
                 int opcode = isValidOp(operation);
                 // Write intermediate file
-                // printf("%d | %s %s %s\n", line_n, label, operation, operator); // DEBUG
                 if(opcode > -1){
-                    fprintf(objc, "%d\t%s\t%s\n", locctr, operation, operator);
+                    fprintf(interFile, "%d\t%s\t%s\n", locctr, operation, operator);
                     locctr += 3;
                 }
                 else{
@@ -224,10 +248,12 @@ int main(int argc, char **argv){
                 }
             }
         }
+        // Write name and length to symtab
+        fprintf(symtab_f, "%s\t%d\t%d\n", progname, startAddr, locctr-startAddr);
         // Write symtab to file
         for(int i=0; i<sym_i; i++)
-            fprintf(symtab_f, "%s %d\n", symtab[i]->name, symtab[i]->code);
-        printf("Pass 1 done!!\n");
+            fprintf(symtab_f, "%s\t%d\n", symtab[i]->name, symtab[i]->code);
+        printf("Pass 1 for '%s' complete!!\nProgram is %d bytes\n", progname, locctr-startAddr);
     }
     else
         printf("Invalid Arguments!!\nRun as %s <asm code> <intermediate dest> <symtab dest>\n", argv[0]);

@@ -1,6 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+
+int str2int(char *str){
+    int op = 0; char neg = 0;
+    for(int i=0; str[i]!=0; i++){
+        if((str[i] >= '0' && str[i] <= '9') || str[i] == '-')
+            if(str[i] == '-')
+                neg = 1;
+            else
+                op = op*10 + str[i] - '0';
+    }
+    if(neg) op *= -1;
+    return op;
+}
 
 char* dec2hex(int n, int bytes){
     bytes = bytes*2;
@@ -14,19 +26,6 @@ char* dec2hex(int n, int bytes){
     }
     while(pos >= 0) op[pos--] = '0';
     op[bytes] = 0;
-    return op;
-}
-
-int str2int(char *str){
-    int op = 0; char neg = 0;
-    for(int i=0; str[i]!=0; i++){
-        if((str[i] >= '0' && str[i] <= '9') || str[i] == '-')
-            if(str[i] == '-')
-                neg = 1;
-            else
-                op = op*10 + str[i] - '0';
-    }
-    if(neg) op *= -1;
     return op;
 }
 
