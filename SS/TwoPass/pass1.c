@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define OPTAB "optab.txt"
+#define OPTAB "OPTAB"
 #define OPLEN 32
 #define SYMLEN 256
 #define BUF_LEN 1024
@@ -18,11 +18,11 @@ struct Op **optab;
 struct Op **symtab;
 int op_n = 0;
 
-void loadOpCode(){
+void loadOptab(){
     FILE *f = fopen(OPTAB, "r");
     while(!feof(f)){
         struct Op *o = malloc(sizeof(struct Op));
-        fscanf(f, "%s %d", o->name, &o->code);
+        fscanf(f, "%s\t%d", o->name, &o->code);
         optab[op_n++] = o;
     }
     fclose(f);
@@ -68,14 +68,14 @@ char paramCount(char *line, char *lab, char *op, char *opr){
         lab[j++] = line[i++];
     lab[j] = 0;
     j = 0; n++;
-    
+
     while((line[i] == 32 || line[i] == 9) && line[i] != 0) i++;
     while(line[i] != 32 && line[i] != 9 && line[i] != 10 && line[i] != 0)
         op[j++] = line[i++];
     op[j] = 0;
     j = 0; n++;
-    
-    while(line[i] == 32 || line[i] == 9 || line[i] == 10 && line[i] != 0) i++; 
+
+    while(line[i] == 32 || line[i] == 9 || line[i] == 10 && line[i] != 0) i++;
     if(line[i] == 0){
         strcpy(opr, op);
         strcpy(op, lab);
@@ -102,12 +102,51 @@ int str2int(char *str){
     return op;
 }
 
+int oprSizeEval(char *opr){
+    int i = 0;
+    // For plain numbers
+    int flag = 1;
+    while(opr[i] != 0){
+        if(opr[i] >= '0' && opr[i] <= '9' || opr[i]=='-');
+        else{
+            flag = 0; break;
+        }
+        i++;
+    }
+    if(flag) return 1;
+
+    // For Specials/ Labels
+    // Hex constants
+    if(opr[0] == 'X' && opr[1] == '\''){
+        i = 2;
+        while(opr[i] != '\'' && opr[i] != 0) i++;
+        if(i > 8) return 0; // Larger than 3 bytes
+        while(opr[--i] != '\''){
+            // Add if valid hex
+            if((opr[i] >= '0' && opr[i] <= '9') || (opr[i] >= 'A' && opr[i] <= 'F'));
+            else return 0;
+        }
+        return 1;
+    }
+
+    // Strings
+    if(opr[0] == 'C' && opr[1] == '\''){
+        i = 2;
+        int k = 0;
+        while(opr[i] != '\'' && opr[i] != 0){
+            k += 1;
+            i++;
+        }
+        return k;
+    }
+}
+
 int main(int argc, char **argv){
     int locctr = 0, sym_i = 0;
     optab = malloc(sizeof(optab)*OPLEN);
     symtab = malloc(sizeof(symtab)*SYMLEN);
     // Load OPCodes from file
-    loadOpCode();
+    loadOptab();
     char *line = malloc(BUF_LEN);
     char *label = malloc(BUF_LEN/2);
     char *operation = malloc(BUF_LEN/2);
@@ -144,7 +183,7 @@ int main(int argc, char **argv){
                 }
             }
 
-            // printf("--> %d | %s op{%s}\n", line_n, line, operation); // Debug
+            printf("--> %d | %s op{%s}\n", line_n, line, operation); // Debug
 
             // Translate assembler directives
             if(opMatch(operation, "END"))
@@ -155,10 +194,21 @@ int main(int argc, char **argv){
                 locctr += str2int(operator)*WORD_SIZE;
             else if(opMatch(operation, "RESB"))
                 locctr += str2int(operator);
-            else if(opMatch(operation, "WORD"))
-                locctr += WORD_SIZE;
-            else if(opMatch(operation, "BYTE"))
-                locctr += 1;
+            else if(opMatch(operation, "WORD")){
+                if(oprSizeEval(operator) > 0)
+                    locctr += WORD_SIZE;
+                else
+                    printf("%d | %s\n[ERROR] At line %d: Invalid Constant -> %s\n", line_n, line, line_n, operator);
+            }
+            else if(opMatch(operation, "BYTE")){
+                int constSize = oprSizeEval(operator);
+                printf("%d + %d\n", locctr, constSize);
+                if(constSize > 0)
+                    locctr += constSize;
+                else
+                    printf("%d | %s\n[ERROR] At line %d: Invalid Constant -> %s\n", line_n, line, line_n, operator);
+            }
+
             // Translate opcodes
             else{
                 int opcode = isValidOp(operation);
@@ -177,9 +227,9 @@ int main(int argc, char **argv){
         // Write symtab to file
         for(int i=0; i<sym_i; i++)
             fprintf(symtab_f, "%s %d\n", symtab[i]->name, symtab[i]->code);
+        printf("Pass 1 done!!\n");
     }
     else
-        printf("No input files!!\nRun as %s <asm code> <intermediate dest> <symtab dest>\n", argv[0]);
-    printf("Pass 1 done!!\n");
+        printf("Invalid Arguments!!\nRun as %s <asm code> <intermediate dest> <symtab dest>\n", argv[0]);
     return 0;
 }
