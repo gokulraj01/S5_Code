@@ -29,8 +29,10 @@ char* dec2hex(int n, int bytes){
     return op;
 }
 
-char* oprEval(char *opr){
+// Evaluate the operator to corersponding hex code
+char* oprEval(char *opr, int bytes, int *n){
     int i = 0, k;
+    *n = bytes*2;
     // For plain numbers
     int flag = 1;
     while(opr[i] != 0){
@@ -42,16 +44,16 @@ char* oprEval(char *opr){
         i++;
     }
     if(flag)
-        return dec2hex(str2int(opr), 3);
-    
+        return dec2hex(str2int(opr), bytes);
+
     // For Specials/ Labels
     // Hex constants
     char *op = malloc(1024);
     if(opr[0] == 'X' && opr[1] == '\''){
         i = 2;
         while(opr[i] != '\'' && opr[i] != 0) i++;
-        if(i > 8) return 0; // Larger than 3 bytes
-        k = 5;
+        if(i > bytes*2+2) return 0; // Larger than 3 bytes
+        k = bytes*2-1;
         while(opr[--i] != '\''){
             // Add if valid hex
             if((opr[i] >= '0' && opr[i] <= '9') || (opr[i] >= 'A' && opr[i] <= 'F'))
@@ -63,10 +65,9 @@ char* oprEval(char *opr){
         op[6] = 0;
         return op;
     }
-    
+
     // Strings
     if(opr[0] == 'C' && opr[1] == '\''){
-        printf("Is string\n");
         i = 2;
         k = 0;
         while(opr[i] != '\'' && opr[i] != 0){
@@ -74,14 +75,15 @@ char* oprEval(char *opr){
             op[k++] = t[0];
             op[k++] = t[1];
         }
+        *n = k;
         return op;
     }
 }
 
 void main(){
-    int a = 128;
+    int a = 128, n;
     printf("%d in hex is %x or %s\n", a, a, dec2hex(a, 3));
-    printf("STR test: %s\n", oprEval("C'abcdefghijklmn'"));
-    printf("HEX test: %s\n", oprEval("X'ABAC'"));
-    printf("DEC test: %s\n", oprEval("1256"));
+    printf("STR test: %s\n", oprEval("C'abcdefghijklmn'", 2, &n));
+    printf("HEX test: %s\n", oprEval("X'8A'", 2, &n));
+    printf("DEC test: %s\n", oprEval("1256", 2, &n));
 }

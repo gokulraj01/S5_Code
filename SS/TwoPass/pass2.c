@@ -116,7 +116,6 @@ char opMatch(char *c1, char *c2){
 }
 
 int getOpCode(char *op, struct Op **table){
-    printf("Iter!!");
     for(int i=0; i<op_n; i++){
         if(opMatch(table[i]->name, op))
             return table[i]->code;
@@ -147,7 +146,7 @@ char* oprEval(char *opr, int bytes, int *n){
     if(opr[0] == 'X' && opr[1] == '\''){
         i = 2;
         while(opr[i] != '\'' && opr[i] != 0) i++;
-        if(i > bytes*2+2) return 0; // Larger than 3 bytes
+        if(i > bytes*2+2) return 0; // Larger than specified byte count
         k = bytes*2-1;
         while(opr[--i] != '\''){
             // Add if valid hex
@@ -157,7 +156,7 @@ char* oprEval(char *opr, int bytes, int *n){
                 return 0;
         }
         while(k >= 0) op[k--] = '0';
-        op[6] = 0;
+        op[bytes*2] = 0;
         return op;
     }
 
@@ -276,6 +275,7 @@ void main(int argc, char **argv){
         fprintf(obj, "%s", dec2hex(tr_curr-tr_start, 1));
         fseek(obj, 0, SEEK_END);
         fprintf(obj, "\nE%s", dec2hex(startAddr, 3));
+        printf("Pass 2 done!! Object code in '%s'\n", argv[3]);
     }
     else
         printf("Invalid Arguments!!\nRun as %s <intermediate file> <symtab dest> <objcode dest>\n", argv[0]);
