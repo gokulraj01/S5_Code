@@ -1,3 +1,7 @@
+// Author: Gokul Raj, 235, R5A
+// 2-pass assembler for SIC | Pass 1
+// ASM code --> Intermediate File, SYMTAB
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -1,6 +1,6 @@
 COPY    START   1000
 FIRST   STL     RETADR
-CLOOP   JSUB    REDREC
+CLOOP   JSUB    RDREC
         LDA     LENGTH
         COMP    ZERO
         JEQ     ENDFIL
