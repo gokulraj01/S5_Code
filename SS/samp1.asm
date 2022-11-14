@@ -1,5 +1,6 @@
 CODE    START   1000
-        LDA     R1
+        LDA     12
+TESTSTR BYTE    C'HELLO WORLD, GOOD DAY'
 
 . Comment line eg
 ADLINE  ADD     X'8A'
