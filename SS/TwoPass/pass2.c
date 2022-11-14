@@ -96,6 +96,8 @@ char* dec2hex(int n, int bytes){
 char opMatch(char *c1, char *c2){
     char a, b;
     int i=0, j=0;
+    if(c1 == 0 || c2 == 0)
+        return 0;
     for(; c1[i] != 0 && c2[j] != 0; i++, j++){
         // Skip leading whitespace
         while(c1[i] == 9 || c1[i] == 32) i++;
@@ -114,6 +116,7 @@ char opMatch(char *c1, char *c2){
 }
 
 int getOpCode(char *op, struct Op **table){
+    printf("Iter!!");
     for(int i=0; i<op_n; i++){
         if(opMatch(table[i]->name, op))
             return table[i]->code;
