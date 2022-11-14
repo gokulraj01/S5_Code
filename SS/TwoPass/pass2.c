@@ -258,7 +258,7 @@ void main(int argc, char **argv){
                 tr_start = addr;
                 tr_len_pos = ftell(obj)-2;
             }
-            // Write in current same record
+            // Write to same text record
             tr_curr = addr;
             tr_ind += n;
             tr_curr += n/2;
