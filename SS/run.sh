@@ -1,5 +1,5 @@
 #!/bin/bash
-SOURCE_FILENAME="samp1.asm"
+SOURCE_FILENAME="samp2.asm"
 INTER_FILENAME="inter"
 SYMTAB_FILENAME="symtab"
 OBJC_FILENAME="obj"

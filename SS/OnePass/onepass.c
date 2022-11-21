@@ -258,8 +258,6 @@ int main(int argc, char **argv){
                 }
             }
 
-            printf("--> %d | %s op{%s}\n", line_n, line, instr); // Debug
-
             // Translate assembler directives
             if(opMatch(instr, "END")){
                 // Finish last record, write end record
@@ -345,8 +343,8 @@ int main(int argc, char **argv){
                 tr_len_pos = ftell(obj)-2;
             }
             // Write to same text record
-            printf("Writing...%s%s\n", ins_hexcode, opr_hexcode); //debug
-            printf("tr_start: %x, tr_curr: %x, tr_len_pos: %x, tr_ind: %d, n: %d, addr: %x\n", tr_start, tr_curr, tr_len_pos, tr_ind, n, addr); //debug
+            //printf("Writing...%s%s\n", ins_hexcode, opr_hexcode); //debug
+            //printf("tr_start: %x, tr_curr: %x, tr_len_pos: %x, tr_ind: %d, n: %d, addr: %x\n", tr_start, tr_curr, tr_len_pos, tr_ind, n, addr); //debug
             tr_curr = addr;
             tr_ind += n;
             tr_curr += n/2;
@@ -361,6 +359,9 @@ int main(int argc, char **argv){
         }
         // Write name and length to symtab
         fprintf(symtab_f, "%s\t%d\t%d\n", progName, startAddr, locctr-startAddr);
+        fseek(obj, 15, SEEK_SET);
+        progLen = locctr-startAddr;
+        fprintf(obj, "%s", dec2hex(progLen, 3));
         // Write symtab to file
         for(int i=0; i<sym_i; i++)
             fprintf(symtab_f, "%s\t%d\n", symtab[i]->name, symtab[i]->code);
