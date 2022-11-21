@@ -1,3 +1,6 @@
+// Author: Gokul Raj, 235, R5A
+// Directory Organization: Single Level
+
 #include <stdio.h>
 #include <stdlib.h>
 

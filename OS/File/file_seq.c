@@ -1,3 +1,6 @@
+// Author: Gokul Raj, 235, R5A
+// File Allocation: Sequential
+
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>

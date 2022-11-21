@@ -1,3 +1,6 @@
+// Author: Gokul Raj, 235, R5A
+// Directory Organization: Hierarchial
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
