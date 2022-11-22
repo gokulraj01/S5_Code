@@ -10,17 +10,17 @@ INSERT INTO employee VALUES ('Hayley Durgan', 'Monett', 'Kolkata');
 INSERT INTO employee VALUES ('Mrs. Alaina Ward', 'Price', 'Pune');
 INSERT INTO employee VALUES ('Nickolas Mann', 'Cocoa Beach', 'Delhi');
 INSERT INTO employee VALUES ('Monserrate Davis', 'Dubbo', 'Kolkata');
-INSERT INTO employee VALUES ('Bella McClure', 'Price', 'Navi Mumbai');
+INSERT INTO employee VALUES ('Bella McClure', 'Price', 'Mumbai');
 INSERT INTO employee VALUES ('Ethyl Gorczany', 'Norwich', 'Visakhapatnam');
 INSERT INTO employee VALUES ('Royce Mayer', 'Gallipolis', 'Nagpur');
-INSERT INTO employee VALUES ('Ms. Jabari McKenzie', 'Millburn', 'Allahabad');
+INSERT INTO employee VALUES ('Ms. Jabari McKenzie', 'Price', 'Mumbai');
 INSERT INTO employee VALUES ('Amanda Romaguera', 'Price', 'Meerut');
 INSERT INTO employee VALUES ('Juliana Morissette', 'Gallipolis', 'Dhuri');
 INSERT INTO employee VALUES ('Sebastian Crona', 'Gallipolis', 'Aurangabad');
-INSERT INTO employee VALUES ('Katelyn Schmeler', 'Nags Head', 'Nagpur');
+INSERT INTO employee VALUES ('Katelyn Schmeler', 'Price', 'Mumbai');
 
 INSERT INTO company VALUES ('ABC', 'Nagpur');
-INSERT INTO company VALUES ('Google', 'Dhuri');
+INSERT INTO company VALUES ('Google', 'Nagpur');
 INSERT INTO company VALUES ('Universal', 'Kolkata');
 
 INSERT INTO works VALUES ('Amy Lowe', 'Universal', 363539);
