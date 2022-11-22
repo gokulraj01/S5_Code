@@ -1,0 +1,396 @@
+## DIRECTORY ORGANIZATION ##
+
+## OUTPUT ##
+$ ./compile.sh OS/Dir/dir_single.c
+
+Enter directory name: rootdir
+Number of files: 3
+Enter {Name, Type, Size} of files
+File1: file1 mp3 123
+File2: file2 txt 456
+File3: testfile mp4 1123
+
+rootdir
+    |--- file1 {mp3}    Size: 123
+    |--- file2 {txt}    Size: 456
+    |--- testfile {mp4} Size: 1123
+
+
+## OUTPUT ##
+$ ./compile.sh OS/Dir/dir_two.c
+
+No: of users: 2
+User1 ID: 123
+Number of directories: 2
+Enter directory name: dir1
+Number of files: 2   
+Enter {Name, Type, Size} of files
+File1: file1 txt 111
+File2: file2 txt 222
+Enter directory name: dir2
+Number of files: 1
+Enter {Name, Type, Size} of files
+File1: file1 mp3 234
+User2 ID: 456
+Number of directories: 1
+Enter directory name: dir
+Number of files: 3
+Enter {Name, Type, Size} of files
+File1: file5 txt 555
+File2: file6 txt 666
+File3: file7 txt 777
+
+User 123
+   |--- dir1
+      |--- file1 {txt}  Size: 111
+      |--- file2 {txt}  Size: 111
+   |--- dir2
+      |--- file1 {mp3}  Size: 234
+User 456
+   |--- dir
+      |--- file5 {txt}  Size: 555
+      |--- file6 {txt}  Size: 666
+      |--- file7 {txt}  Size: 777
+
+
+## OUTPUT ##
+$ ./compile.sh OS/Dir/dir_hier.c
+
+Root name: rootfold
+
+(rootfold) > help
+
+Hierarchial Directory Simulation
+----------
+mkdir <dirname> -- Make a directory
+mkfile <name> <type> <size> -- Make a file
+cd <dirname> -- Move into directory (Use .. to goto parent)
+ls -- List current directory recursively
+tree -- Show whole directory tree
+exit -- Exit program
+
+(rootfold) > mkdir fold1
+
+(rootfold) > mkfile file1 txt 222
+
+(rootfold) > cd fold1
+
+(fold1) > mkdir fold2
+
+(fold1) > mkfile file2 txt 333
+
+(fold1) > cd ..
+
+(rootfold) > mkfile file3 mp3 555
+
+(rootfold) > mkdir fold3
+
+(rootfold) > tree
+|-- rootfold
+   |-- fold1
+      |-- fold2
+      |-- file2 {txt}   Size: 333
+   |-- file1 {txt}      Size: 222
+   |-- file3 {mp3}      Size: 555
+   |-- fold3
+
+(rootfold) > cd fold3
+
+(fold3) > mkfile file4 txt 123
+
+(fold3) > tree
+|-- rootfold
+   |-- fold1
+      |-- fold2
+      |-- file2 {txt}   Size: 333
+   |-- file1 {txt}      Size: 222
+   |-- file3 {mp3}      Size: 555
+   |-- fold3
+      |-- file4 {txt}   Size: 123
+
+(fold3) > exit
+
+
+## FILE ALLOCATION ##
+
+## OUTPUT ##
+$ ./compile.sh OS/File/file_seq.c
+
+Total Mem Size: 1024
+Block Size: 32
+File Size: 256
+Allocation complete!!
+
+32 blocks, 32b each. Size: 1024b
+
+Allocations
+X X X X X X X X . . 
+. . . . . . . . . . 
+. . . . . . . . . . 
+. .
+
+
+## OUTPUT ##
+$ ./compile.sh OS/File/file_link.c
+
+Total Mem Size: 1024
+Block Size: 32
+File Size: 256
+Link Order: 14->20->17->21->31->28->2->13->X
+Allocation complete!!
+
+32 blocks, 32b each. Size: 1024b
+
+Allocations
+. . X . . . . . . . 
+. . . X X . . X . . 
+X X . . . . . . X . 
+. X 
+
+
+## OUTPUT ##
+$ ./compile.sh OS/File/file_index.c
+
+Total Mem Size: 1024
+Block Size: 32
+File Size: 256
+Indices: 19 11 10 28 20 5 21 7 
+Allocation complete!!
+
+32 blocks, 32b each. Size: 1024b
+
+Allocations
+. . . . . X . X . . 
+X X . . . . . . . X 
+X X . . . . . . X . 
+. .
+
+## SIC ASSEMBLER ##
+
+## Source Code
+COPY    START   1000
+FIRST   STL     RETADR
+CLOOP   JSUB    RDREC
+        LDA     LENGTH
+        COMP    ZERO
+        JEQ     ENDFIL
+        JSUB    WRREC
+        J       CLOOP
+ENDFIL  LDA     EOF
+        STA     BUFFER
+        LDA     THREE
+        STA     LENGTH
+        JSUB    WRREC
+        LDL     RETADR
+        RSUB
+EOF     BYTE    C'EOF
+THREE   WORD    3
+ZERO    WORD    0
+RETADR  RESW    1
+LENGTH  RESW    1
+BUFFER  RESB    4096
+
+. SUBROUTIME TO READ RECORD INTO BUFFER
+RDREC   LDX     ZERO
+        LDA     ZERO
+RLOOP   TD      INPUT
+        JEQ     RLOOP
+        RD      INPUT
+        COMP    ZERO
+        JEQ     EXIT
+        STCH    BUFFER,X
+        TIX     MAXLEN
+        JLT     RLOOP
+EXIT    STX     LENGTH
+        RSUB
+INPUT   BYTE    X'F1
+MAXLEN  WORD    4096
+
+. SUBROUTIME TO WRITE RECORD FROM BUFFER
+WRREC   LDX     ZERO
+WLOOP   TD      OUTPUT
+        JEQ     WLOOP
+        LDCH    BUFFER,X
+        WD      OUTPUT
+        TIX     LENGTH
+        JLT     WLOOP
+        RSUB
+OUTPUT  BYTE    X'05
+        END     FIRST
+
+## OPTAB File
+STL    14
+JSUB   48
+LDA    00
+COMP   28
+JEQ    30
+J      3C
+STA    0C
+LDL    08
+RSUB   4C
+LDX    04
+TD     E0
+RD     D8
+STCH   54
+TIX    2C
+JLT    38
+STX    10
+LDCH   50
+WD     DC
+ADD    18
+LDB    68
+STB    78
+
+## OUTPUT ##
+$ ./onepass samp2.asm symtab obj
+[ERROR] Invalid label 'RETADR' -- Filling 0's
+[ERROR] Invalid label 'RDREC' -- Filling 0's
+[ERROR] Invalid label 'LENGTH' -- Filling 0's
+[ERROR] Invalid label 'ZERO' -- Filling 0's
+[ERROR] Invalid label 'ENDFIL' -- Filling 0's
+[ERROR] Invalid label 'WRREC' -- Filling 0's
+[ERROR] Invalid label 'EOF' -- Filling 0's
+[ERROR] Invalid label 'BUFFER' -- Filling 0's
+[ERROR] Invalid label 'THREE' -- Filling 0's
+[ERROR] Invalid label 'LENGTH' -- Filling 0's
+[ERROR] Invalid label 'WRREC' -- Filling 0's
+[ERROR] Invalid label 'RETADR' -- Filling 0's
+[ERROR] Invalid label 'INPUT' -- Filling 0's
+[ERROR] Invalid label 'INPUT' -- Filling 0's
+[ERROR] Invalid label 'EXIT' -- Filling 0's
+[ERROR] Invalid label 'BUFFER,X' -- Filling 0's
+[ERROR] Invalid label 'MAXLEN' -- Filling 0's
+[ERROR] Invalid label 'OUTPUT' -- Filling 0's
+[ERROR] Invalid label 'BUFFER,X' -- Filling 0's
+[ERROR] Invalid label 'OUTPUT' -- Filling 0's
+Pass 2 done!! Object code in 'obj'
+Assembly for 'COPY' complete!!
+Program is 4218 bytes
+
+## OBJ file
+HCOPY    00100000107A
+T001000 1E 0E0000 300000 000000 1C0000 1E0000 300000 031003 000000 000000 000000
+T00101E 15 000000 300000 080000 040000 454F46 000003 000000
+T002039 1E 041030 001030 000000 1E203F 000000 1C1030 1E0000 360000 020000 26203F
+T002057 1C 0A1036 040000 F1 001000 041030 000000 1E2064 320000 000000 021036
+T002073 07 262064 040000 05
+E001000
+
+## SYMTAB file
+COPY    4096  4218
+FIRST   4096
+CLOOP   4099
+ENDFIL  4117
+EOF     4138
+THREE   4141
+ZERO    4144
+RETADR  4147
+LENGTH  4150
+BUFFER  4153
+RDREC   8249
+RLOOP   8255
+EXIT    8279
+INPUT   8285
+MAXLEN  8286
+WRREC   8289
+WLOOP   8292
+OUTPUT  8313
+
+
+
+## OUTPUT ##
+$ ./pass1 samp2.asm inter symtab 
+Pass 1 for 'COPY' complete!!
+Program is 4218 bytes
+
+## INTER file
+4096    STL    RETADR
+4099    JSUB   RDREC
+4102    LDA    LENGTH
+4105    COMP   ZERO
+4108    JEQ    ENDFIL
+4111    JSUB   WRREC
+4114    J      CLOOP
+4117    LDA    EOF
+4120    STA    BUFFER
+4123    LDA    THREE
+4126    STA    LENGTH
+4129    JSUB   WRREC
+4132    LDL    RETADR
+4135    RSUB    
+4138    BYTE   C'EOF
+4141    WORD   3
+4144    WORD   0
+8249    LDX    ZERO
+8252    LDA    ZERO
+8255    TD     INPUT
+8258    JEQ    RLOOP
+8261    RD     INPUT
+8264    COMP   ZERO
+8267    JEQ    EXIT
+8270    STCH   BUFFER,X
+8273    TIX    MAXLEN
+8276    JLT    RLOOP
+8279    STX    LENGTH
+8282    RSUB    
+8285    BYTE   X'F1
+8286    WORD   4096
+8289    LDX    ZERO
+8292    TD     OUTPUT
+8295    JEQ    WLOOP
+8298    LDCH   BUFFER,X
+8301    WD     OUTPUT
+8304    TIX    LENGTH
+8307    JLT    WLOOP
+8310    RSUB    
+8313    BYTE    X'05
+
+## SYMTAB file
+COPY    4096  4218
+FIRST   4096
+CLOOP   4099
+ENDFIL  4117
+EOF     4138
+THREE   4141
+ZERO    4144
+RETADR  4147
+LENGTH  4150
+BUFFER  4153
+RDREC   8249
+RLOOP   8255
+EXIT    8279
+INPUT   8285
+MAXLEN  8286
+WRREC   8289
+WLOOP   8292
+OUTPUT  8313
+
+
+
+## OUTPUT ##
+$ ./pass2 inter symtab obj
+Running Pass 2 for 'COPY' | Start: 1000, Length: 4218 bytes
+[ERROR] Invalid label 'BUFFER,X' -- Filling 0's
+[ERROR] Invalid label 'BUFFER,X' -- Filling 0's
+Pass 2 done!! Object code in 'obj'
+
+## OBJ File
+HCOPY    00100000107A
+T001000 1E 141033 482039 001036 281030 301015 482061 3C1003 00102A 0C1039 00102D
+T00101E 15 0C1036 482061 081033 4C0000 454F46 000003 000000
+T002039 1E 041030 001030 E0205D 30203F D8205D 281030 302057 540000 2C205E 38203F
+T002057 1C 101036 4C0000 F1 001000 041030 E02079 302064 500000 DC2079 2C1036
+T002073 07 382064 4C0000 05
+E001000
+
+
+
+## LOADERS
+
+## OUTPUT ##
+$ ./loader_abs COPY 1000 obj
+Loading program COPY to memory location 1000...
+Load done!!
+
+$ ./loader_abs ABCD 1000 obj
+[ERROR] 'ABCD' not found in 'obj'
