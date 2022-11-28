@@ -1,4 +1,10 @@
--- @Q4.sql;
--- @Q4_val.sql;
+SET SERVEROUTPUT ON;
+
 clear scr
 
+DECLARE
+    accno int := &accno;
+BEGIN
+
+END;
+/
