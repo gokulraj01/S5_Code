@@ -106,7 +106,7 @@ int str2int(char *str){
     return op;
 }
 
-int str2hex(char *str){
+int hex2dec(char *str){
     int op = 0;
     for(int i=0; str[i]!=0; i++){
         if(str[i] >= '0' && str[i] <= '9')
@@ -213,7 +213,7 @@ int main(int argc, char **argv){
             if(opMatch(operation, "END"))
                 continue;
             else if(opMatch(operation, "START")){
-                locctr = str2hex(operator);
+                locctr = hex2dec(operator);
                 startAddr = locctr;
             }
             else if(opMatch(operation, "RESW"))

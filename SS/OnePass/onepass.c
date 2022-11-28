@@ -69,7 +69,7 @@ int str2int(char *str){
     return op;
 }
 
-int str2hex(char *str){
+int hex2dec(char *str){
     int op = 0;
     for(int i=0; str[i]!=0; i++){
         if(str[i] >= '0' && str[i] <= '9')
@@ -269,7 +269,7 @@ int main(int argc, char **argv){
                 break;
             }
             else if(opMatch(instr, "START")){
-                locctr = str2hex(opr);
+                locctr = hex2dec(opr);
                 startAddr = locctr;
                 // Write Header Record
                 fprintf(obj, "H%s%s%s\n", label, dec2hex(startAddr, 3), dec2hex(progLen, 3));
