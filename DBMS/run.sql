@@ -1,10 +1,9 @@
-SET SERVEROUTPUT ON;
-
 clear scr
 
-DECLARE
-    accno int := &accno;
-BEGIN
+-- SELECT branch_name FROM branch
+-- WHERE branch_name IN (SELECT branch_name FROM loan WHERE loan.loan_number = borrower.loan_number) AND branch.branch_city='Delhi';
 
-END;
-/
+SELECT customer_name FROM borrower WHERE borrower.branch_name IN (
+	SELECT branch_name FROM branch
+	WHERE branch_name IN (SELECT branch_name FROM loan WHERE loan.loan_number = borrower.loan_number) AND branch.branch_city='Delhi'
+);
