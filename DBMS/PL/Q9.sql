@@ -7,7 +7,6 @@ DECLARE
 	a int;
 	m int;
 	
-	-- PROCEDURE ops(x IN INT, y IN INT, s OUT INT, av OUT FLOAT, mn OUT INT) IS
 	PROCEDURE ops(x IN INT, y IN INT, s OUT INT, av OUT FLOAT, mn OUT INT) IS
 	BEGIN
 		s := x+y;
