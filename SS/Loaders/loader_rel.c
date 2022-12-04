@@ -19,19 +19,58 @@ int hex2dec(char *str){
     return op;
 }
 
-int getTextStart(char *rec){
-    int i = 1, j = 0;
-    char *snip = malloc(2*WORD_LEN+1);
-    while(rec[i] != 0 && i < 2*WORD_LEN+1)
+char* dec2hex(int n, int bytes){
+    bytes = bytes*2;
+    char symmap[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+    char *op = malloc(bytes+1);
+    int pos = bytes-1, rem;
+    while(n > 0){
+        rem = n%16;
+        n /= 16;
+        op[pos--] = symmap[rem];
+    }
+    while(pos >= 0) op[pos--] = '0';
+    op[bytes] = 0;
+    return op;
+}
+
+// Get a section from any record
+int getRecData(char *rec, int start, int len){
+    int i = start, j = 0;
+    char *snip = malloc(len+1);
+    while(rec[i] != 0 && i < len)
         snip[j++] = rec[i++];
     snip[j] = 0;
     int startAddr = hex2dec(snip);
-    // j = 0;
-    // while(rec[i] != 0 && j < 2)
-    //     snip[j++] = rec[i++];
-    // snip[j] = 0;
-    // *len = hex2int(snip);
     return startAddr;
+}
+
+void relocateLine(char *rec, FILE *f, int startAddr){
+    // Remember last pos to return to
+    int lastloc = ftell(f);
+
+    // Get location to modify
+    int modloc = getRecData(rec, 1, 6);
+    int modsize = getRecData(rec, 7, 2);
+
+    // Start at top, read all text records
+    fseek(f, 0, SEEK_SET);
+    char *buf = malloc(BUFF_LEN);
+    while(!feof(f)){
+        fgets(buf, BUFF_LEN, f);
+        // For each text record, find start addr
+        if(buf[0] == 'T'){
+            int textloc = getRecData(buf, 1, 6);
+            int textlen = getRecData(buf, 7, 2);
+            // if modloc is in this text record, modify it
+            if(textloc+textlen >= modloc){
+                int offset = (modloc-textloc)*2+6;
+                int addr = getRecData(buf, , modsize);
+                char *newAddr = dec2hex(addr+startAddr, modsize/2);
+                for(int i=; )
+            }
+        }
+    }
 }
 
 void main(int argc, char **argv){
@@ -60,7 +99,8 @@ void main(int argc, char **argv){
             // If modification record,
             // go to beginning and find correct Text Record
             else if(buff[0] == 'M'){
-                
+                int modLoc = getRecStart(buff);
+                int lastFileLoc = ftell();
             }
         }
         // Verified. Now load at start addr.
