@@ -50,20 +50,22 @@ WHERE depositor.account_number = account.account_number GROUP BY branch_name;
 -- o. Find the names of all customers who have an account but no loan. 
 (SELECT UNIQUE customer_name FROM depositor) EXCEPT (SELECT UNIQUE customer_name FROM borrower);
 
--- *p. List in alphabetic order the names of all customers having a loan in Delhi branch. 
-SELECT customer_name FROM borrower WHERE (
-	SELECT branch_name FROM branch
-	WHERE branch_name IN (SELECT branch_name FROM loan WHERE loan.loan_number = loan_number) AND branch.branch_city='Delhi'
+-- p. List in alphabetic order the names of all customers having a loan in Delhi branch. 
+SELECT customer_name FROM borrower
+WHERE loan_number IN (
+    SELECT loan_number FROM loan WHERE branch_name IN (
+        SELECT branch_name FROM branch WHERE branch_city = 'Delhi'
+    )
 ) ORDER BY customer_name;
 
--- *q. Find the names of all branches that have greater assets than some branch located in Bangalore. 
+-- q. Find the names of all branches that have greater assets than some branch located in Bangalore. 
 SELECT branch_name FROM branch WHERE assets > ALL (SELECT assets FROM branch WHERE branch_city='Bangalore');
 
--- *r. List the name of employees who are born in January. 
+-- r. List the name of employees who are born in January. 
 SELECT employee_name FROM employee WHERE EXTRACT(MONTH FROM dob)='01';
 
--- *s. List the name of employees whose age is greater than 30. 
+-- s. List the name of employees whose age is greater than 30. 
 SELECT * FROM (SELECT employee_name, EXTRACT(YEAR FROM (SELECT CURRENT_DATE FROM DUAL)) - EXTRACT(YEAR FROM dob) AS age FROM employee) WHERE age > 30;
 
--- *t. Display month of birth of all employees.
+-- t. Display month of birth of all employees.
 SELECT employee_name, TO_CHAR(dob, 'Month') AS MOB FROM employee;
