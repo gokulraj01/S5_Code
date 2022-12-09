@@ -8,6 +8,8 @@
 #define NAME_SIZE 8
 #define WORD_LEN 3
 
+char *mem = NULL;
+
 int hex2dec(char *str){
     int op = 0;
     for(int i=0; str[i]!=0; i++){
@@ -34,55 +36,28 @@ char* dec2hex(int n, int bytes){
     return op;
 }
 
-// Get a section from any record
-int getRecData(char *rec, int start, int len){
-    int i = start, j = 0;
+int snipAddr(char *rec, int offset, int len){
+    int i = offset, j = 0;
     char *snip = malloc(len+1);
-    while(rec[i] != 0 && i < len)
+    while(rec[i] != 0 && j < len)
         snip[j++] = rec[i++];
     snip[j] = 0;
-    int startAddr = hex2dec(snip);
-    return startAddr;
-}
-
-void relocateLine(char *rec, FILE *f, int startAddr){
-    // Remember last pos to return to
-    int lastloc = ftell(f);
-
-    // Get location to modify
-    int modloc = getRecData(rec, 1, 6);
-    int modsize = getRecData(rec, 7, 2);
-
-    // Start at top, read all text records
-    fseek(f, 0, SEEK_SET);
-    char *buf = malloc(BUFF_LEN);
-    while(!feof(f)){
-        fgets(buf, BUFF_LEN, f);
-        // For each text record, find start addr
-        if(buf[0] == 'T'){
-            int textloc = getRecData(buf, 1, 6);
-            int textlen = getRecData(buf, 7, 2);
-            // if modloc is in this text record, modify it
-            if(textloc+textlen >= modloc){
-                int offset = (modloc-textloc)*2+6;
-                int addr = getRecData(buf, , modsize);
-                char *newAddr = dec2hex(addr+startAddr, modsize/2);
-                for(int i=; )
-            }
-        }
-    }
+    int addr = hex2dec(snip);
+    return addr;
 }
 
 void main(int argc, char **argv){
     if(argc >= 4){
         FILE *objf = fopen(argv[3], "r");
         char *buff = malloc(BUFF_LEN);
-        char i = 0, f = 0;
+        char f = 0;
+        int startAddr, progLen, relAddr, currPos, currLen, mempos, i;
         // Verify program name of program to load
         while(!feof(objf)){
             fgets(buff, BUFF_LEN, objf);
             // If header, verify program name
             if(buff[0] == 'H'){
+                i = 0;
                 while(i < NAME_SIZE && argv[1][i] != 0){
                     if(buff[i+1] != argv[1][i]){
                         f = 1;
@@ -94,26 +69,50 @@ void main(int argc, char **argv){
                     printf("[ERROR] '%s' not found in '%s'\n", argv[1], argv[3]);
                     exit(0);
                 }
-                break;
+                // Verified. Get metadata, allocate a copy buffer
+                startAddr = snipAddr(buff, NAME_SIZE+1, WORD_LEN*2);
+                progLen = snipAddr(buff, NAME_SIZE+WORD_LEN*2+1, 2*(WORD_LEN+1));
+                relAddr = hex2dec(argv[2]);
+                mem = malloc(progLen*2);
+                printf("Start at %d with len %d, memsize %d\nRel to %d", startAddr, progLen, progLen*2, relAddr);
+            }
+            // If text record, copy normally
+            else if(buff[0] == 'T'){
+                currPos = snipAddr(buff, 1, 2*WORD_LEN);
+                currLen = snipAddr(buff, 2*WORD_LEN+1, 2);
+                mempos = (currPos-startAddr)*2;
+                // Copy this record to mem
+                i = 2*WORD_LEN+3;
+                while(buff[i] != '\n')
+                    mem[mempos+i] = buff[i++];
+
+                printf("Currpos: %d, Currlen: %d, mempos: %d, start: %d\n", currPos, currLen, mempos, startAddr);
+                
             }
             // If modification record,
             // go to beginning and find correct Text Record
             else if(buff[0] == 'M'){
-                int modLoc = getRecStart(buff);
-                int lastFileLoc = ftell();
+                int modAddr = snipAddr(buff, 1, 2*WORD_LEN); 
+                int modLen = snipAddr(buff, 2*WORD_LEN+1, 2);
+                mempos = (modAddr - startAddr)*2+1;
+                int oldAddr = snipAddr(mem, mempos, modLen);
+                char *newAddr = dec2hex(oldAddr+relAddr, 2);
+                i = 0;
+                while(newAddr[i] != 0)
+                    mem[mempos+i] = newAddr[i++];
+                printf("Modify %d at %d\n", modLen, modAddr);
             }
         }
-        // Verified. Now load at start addr.
-        char *startAddr = malloc(9);
-        i = NAME_SIZE+1;
-        char max = i+NAME_SIZE-2, j = 0;
-        while(buff[i] == '0') i++;
-        while(i < max)
-            startAddr[j++] = buff[i++];
-        startAddr[j] = 0;
-        printf("Loading program %s to memory location %s...\n", argv[1], startAddr);
-            // Loading syscalls happen here
-        printf("Load done!!\n");
+        // Dump mem to file
+        i = 0, currPos = relAddr;
+        FILE *memdump = fopen("memdump.txt", "w");
+        while(i <= 2*progLen){
+            printf("Dump %s %c%c\n", dec2hex(relAddr, 2), mem[i++], mem[i++]);
+            getchar();
+            fprintf(memdump, "%s %c%c\n", dec2hex(relAddr, 2), mem[i++], mem[i++]);
+        }
+        fclose(memdump);
+        fclose(objf);
     }
     else
         printf("Invalid file format!!\nRun as %s <prog name> <start addr> <obj code>\n", argv[0]);
