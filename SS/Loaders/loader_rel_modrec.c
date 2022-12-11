@@ -7,6 +7,7 @@
 #define BUFF_LEN 1024
 #define NAME_SIZE 8
 #define WORD_LEN 3
+#define MEM_DUMP_FILE "memdump.txt"
 
 char *mem = NULL;
 
@@ -51,8 +52,8 @@ void main(int argc, char **argv){
         FILE *objf = fopen(argv[3], "r");
         char *buff = malloc(BUFF_LEN);
         char f = 0;
-        int startAddr, progLen, relAddr, currPos, currLen, mempos, i;
-        // Verify program name of program to load
+        int startAddr, progLen, relAddr, currPos, currLen, mempos, i, j;
+        // Read whole object program
         while(!feof(objf)){
             fgets(buff, BUFF_LEN, objf);
             // If header, verify program name
@@ -70,24 +71,24 @@ void main(int argc, char **argv){
                     exit(0);
                 }
                 // Verified. Get metadata, allocate a copy buffer
+                printf("Program '%s' found. Loading...\n", argv[1]);
                 startAddr = snipAddr(buff, NAME_SIZE+1, WORD_LEN*2);
                 progLen = snipAddr(buff, NAME_SIZE+WORD_LEN*2+1, 2*(WORD_LEN+1));
                 relAddr = hex2dec(argv[2]);
                 mem = malloc(progLen*2);
-                printf("Start at %d with len %d, memsize %d\nRel to %d", startAddr, progLen, progLen*2, relAddr);
+                for(int i=0; i<progLen*2; i++)
+                    mem[i]='0';
             }
             // If text record, copy normally
             else if(buff[0] == 'T'){
                 currPos = snipAddr(buff, 1, 2*WORD_LEN);
-                currLen = snipAddr(buff, 2*WORD_LEN+1, 2);
+                currLen = snipAddr(buff, 2*WORD_LEN+1, 2)*2;
                 mempos = (currPos-startAddr)*2;
                 // Copy this record to mem
                 i = 2*WORD_LEN+3;
-                while(buff[i] != '\n')
-                    mem[mempos+i] = buff[i++];
-
-                printf("Currpos: %d, Currlen: %d, mempos: %d, start: %d\n", currPos, currLen, mempos, startAddr);
-                
+                j = 0;
+                while(j < currLen)
+                    mem[mempos+(j++)] = buff[i++];
             }
             // If modification record,
             // go to beginning and find correct Text Record
@@ -100,19 +101,24 @@ void main(int argc, char **argv){
                 i = 0;
                 while(newAddr[i] != 0)
                     mem[mempos+i] = newAddr[i++];
-                printf("Modify %d at %d\n", modLen, modAddr);
+            }
+            // Stop reading at end record
+            else if(buff[0] == 'E'){
+                printf("Relocated to [%x..%x]. Load done!!\n", relAddr, relAddr+progLen-1);
+                break;
             }
         }
-        // Dump mem to file
+        // Dump memory to file
         i = 0, currPos = relAddr;
-        FILE *memdump = fopen("memdump.txt", "w");
-        while(i <= 2*progLen){
-            printf("Dump %s %c%c\n", dec2hex(relAddr, 2), mem[i++], mem[i++]);
-            getchar();
-            fprintf(memdump, "%s %c%c\n", dec2hex(relAddr, 2), mem[i++], mem[i++]);
+        FILE *memdump = fopen(MEM_DUMP_FILE, "w");
+        while(i < 2*progLen){
+            fprintf(memdump, "%s %c%c\n", dec2hex(currPos, 2), mem[i], mem[i+1]);
+            i += 2;
+            currPos ++;
         }
         fclose(memdump);
         fclose(objf);
+        printf("Memory dumped to %s...\n", MEM_DUMP_FILE);
     }
     else
         printf("Invalid file format!!\nRun as %s <prog name> <start addr> <obj code>\n", argv[0]);
