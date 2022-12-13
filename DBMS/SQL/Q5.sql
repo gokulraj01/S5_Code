@@ -62,5 +62,5 @@ CREATE TABLE teaches(
 -- Create view for Physics in courses in 2009
 DROP VIEW PHYSICS;
 CREATE VIEW PHYSICS AS
-SELECT sec_id, course.course_id, semester, year, building, room_number, time_slot_id FROM course, section
+SELECT sec_id, course.course_id, semester, building, room_number FROM course, section
 WHERE course.course_id = section.sec_id AND year = 2009 AND dept_name = 'Physics';
