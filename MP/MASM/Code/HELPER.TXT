@@ -1,0 +1,15 @@
+SAVE MACRO
+    PUSH AX
+    PUSH BX
+    PUSH CX
+    PUSH DX
+    PUSHF
+ENDM
+
+RESTORE MACRO
+    POPF
+    POP DX
+    POP CX
+    POP BX
+    POP AX
+ENDM
