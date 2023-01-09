@@ -19,16 +19,15 @@ INSERT INTO employee VALUES (5623, 'Suraj', 132552);
 
 DECLARE
 	i INT;
-	tn VARCHAR(20) := 'employee';
 
-	FUNCTION GETN(tname IN VARCHAR) RETURN INTEGER IS
+	FUNCTION GETN RETURN INTEGER AS
 		n INT;
 	BEGIN
-		EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM :val' USING tname;
+		SELECT COUNT(*) INTO n FROM employee;
 		RETURN n;
 	END;
 BEGIN
-	i := GETN(tn);
-	dbms_output.put_line('Table "' || tn || '" has ' || i || ' tuples!!');
+	i := GETN();
+	dbms_output.put_line('Employee table has ' || i || ' tuples!!');
 END;
 /

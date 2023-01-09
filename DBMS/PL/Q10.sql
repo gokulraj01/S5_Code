@@ -13,6 +13,7 @@ INSERT INTO employee VALUES (5566, 'Archa', 2605);
 INSERT INTO employee VALUES (1234, 'Ali', 1500);
 INSERT INTO employee VALUES (9785, 'Saranya', 40000);
 INSERT INTO employee VALUES (5623, 'Suraj', 1325);
+INSERT INTO employee VALUES (9999, 'Athira', 1325);
 
 DECLARE
 	n int;

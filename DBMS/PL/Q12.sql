@@ -18,14 +18,18 @@ DECLARE
 	emp_id INT := &emp_id;
 	n INT;
 	emp_tup employee%ROWTYPE;
+	e EXCEPTION;
 BEGIN
 	SELECT COUNT(*) INTO n FROM employee WHERE employee_id=emp_id;
 	IF (n = 0) THEN
-		dbms_output.put_line('No such employee!!');
+		RAISE e;
 	ELSE
 		SELECT * INTO emp_tup FROM employee WHERE employee_id=emp_id;
 		dbms_output.put_line('Name: ' || emp_tup.employee_name);
 		dbms_output.put_line('Salary: ' || emp_tup.salary);
 	END IF;
+EXCEPTION
+	WHEN e THEN
+		dbms_output.put_line('No such employee!!');
 END;
 /

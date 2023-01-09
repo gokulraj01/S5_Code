@@ -86,7 +86,25 @@ void defineMacro(FILE *prog){
         if(!strcmp(opr, "MEND"))
             break;
         // Define line by line
-        
+        // Check if operand has an argument in ARGTAB by substring search
+        int i = 0; j = 0;
+        while(opr[i] != 0){
+            // For each argument in ARGTAB
+            for(int k=0; k < n->nargs; k++){
+                while(ARGTAB[k][j] != 0){
+                    if(ARGTAB[k][j] == opr[i])
+                        i++;
+                    else{
+                        j -= i;
+                        i = 0;
+                    }
+                    j++;
+                }
+                if(ARGTAB[k][j] == 0)
+                    // Found
+                
+            }
+        }
     }
 }
 
