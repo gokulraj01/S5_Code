@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="std.xsl"?>
+<db>
+    <student>
+        <name>Arjun</name>
+        <dept>CSE</dept>
+        <rno>101</rno>
+    </student>
+    <student>
+        <name>Sanju</name>
+        <dept>ECE</dept>
+        <rno>302</rno>
+    </student>
+    <student>
+        <name>Sheela</name>
+        <dept>BT</dept>
+        <rno>501</rno>
+    </student>
+</db>
