@@ -1,0 +1,12 @@
+use mydb
+db.createCollection("restaurant")
+
+db.restaurant.insert([
+    {"_id": 1, "name": "Taj Hotel", "address": "Market Rd, Delhi", "zip": 490012, "loc": [60.123, -12.012], "emp_id": []},
+    {"_id": 2, "name": "Governor Hall Hotel", "address": "Kottayam, Kerala", "zip": 620919, "loc": [58.243, -15.092], "emp_id": []},
+    {"_id": 3, "name": "Mascot Hotel", "address": "Trivandrum, Kerala", "zip": 695001, "loc": [58.311, -15.119], "emp_id": []}
+])
+
+db.restaurant.find({}, {"emp_id":0, "loc":0})
+
+db.restaurant.find({"name": /gov*/i}, {"name": 1, "loc": 1})

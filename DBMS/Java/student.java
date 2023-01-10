@@ -28,6 +28,15 @@ class Student{
 		} catch (Exception e){}
 	}
 	
+	void updateMark(String name, int mark){
+		try{
+			PreparedStatement s = this.con.prepareStatement("UPDATE student SET mark=? WHERE name=?");
+			s.setInt(1, mark);
+			s.setString(2, name);
+			s.executeUpdate();
+		} catch (Exception e){}
+	}
+
 	void rankList(){
 		try{
 			// Test a statement
@@ -43,6 +52,8 @@ class Student{
 	}
 	
 	public static void main(String args[]){
+		String name;
+		int mark;
 		try{
 			// Dynamically load JDBC Driver
 			Class.forName("oracle.jdbc.driver.OracleDriver");
@@ -56,23 +67,34 @@ class Student{
 			std.makeDB();
 			
 			Scanner s = new Scanner(System.in);
-			System.out.print("No: of students: ");
-			int n = s.nextInt();
-			for(int i=0; i<n; i++){
-				System.out.println("Student "+(i+1));
-				System.out.print("Name: ");
-				s.next();
-				String name = s.nextLine();
-				System.out.print("Mark: ");
-				int mark = s.nextInt();
-				System.out.println(name + " " + mark);
-				std.insertStudent(name, mark);
+			while(true){
+				System.out.println("Options\n[1] Add Student\t[2] Update Mark\n[3] Show Ranklist\t[4] Exit");
+				int c = s.nextInt();
+				switch(c){
+					case 1:
+						System.out.print("Name: ");
+						s.next();
+						name = s.nextLine();
+						System.out.print("Mark: ");
+						mark = s.nextInt();
+						std.insertStudent(name, mark);
+						break;
+					case 2:
+						System.out.print("Name: ");
+						s.next();
+						name = s.nextLine();
+						System.out.print("New Mark: ");
+						mark = s.nextInt();
+						std.insertStudent(name, mark);
+						break;
+					case 3:
+						std.rankList();
+						break;
+				}
+				if(c == 4) break;
 			}
-			
-			// Show rank list
-			std.rankList();
-			
 			// Close connection
+			s.close();
 			std.con.close();
 		}
 		catch(Exception e){
